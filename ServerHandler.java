@@ -29,14 +29,10 @@ public class ServerHandler extends Thread
     // Default Constructor which got clientSpckets and Handle them
     public ServerHandler(Socket clientSocket)    //clientSocket comes from ClientSocket
     {
-
         this.client_Socket = clientSocket;   
-
-        
-
     }
 
-    public void run()
+    public void run() 
     {     
         try {
             in=new BufferedInputStream(client_Socket.getInputStream());
@@ -44,87 +40,46 @@ public class ServerHandler extends Thread
         } catch (IOException ex) {
             Logger.getLogger(ServerHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-        playGame();
+        try {
+            playGame();
+        } catch (IOException ex) {
+            Logger.getLogger(ServerHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-    
-    
-    
-    public String ChooseWord() 
-    {
 
+    public String ChooseWord() throws IOException 
+    {
+        File file;
+        FileInputStream  fileStream;      
+        FileReader fileReader = null;
+        BufferedReader bufferedReader;
+
+        Random rand=new Random();
+        int firstLine = 0;
+        int lastLine = 25143;
+        int R = rand.nextInt(lastLine-firstLine) + firstLine;
         
-        
-             String line = null;
-            
-            
-            // reading from words.txt
-            
-            try {
-            File file = new File("Words.txt");
-            FileInputStream filestream=new FileInputStream(file);
-            FileReader fileReader = new FileReader(file);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            
-            
-            try {
-            line=bufferedReader.readLine();
-            System.out.println(line);
-            } catch (IOException ex) {
-            Logger.getLogger(ServerHandler.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            }  catch (FileNotFoundException ex) {
-            Logger.getLogger(ServerHandler.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
-            
-            //try ( InputStream inputStream = new FileInputStream(INPUT_FILE) ) {
-            //String line=inputStream.
-            /*try {
-                
-            String filePath = "C:\\Users\\MyPro\\Documents\\NetBeansProjects\\Homework1\\src\\homework1\\Words.txt";
-            String content = newcanner(new File(filePath)).useDelimiter("\\Z").next();
-            //String content  Scanner(new File(filePath)).useDelimiter("\\Z").next();
-            //String content = new Scanner(new File("Wordz.txt")).next();
-            System.out.println(content);
-           
-            endline = 999;
-            randomInt = generate random int between 1 and 999; 154
-            for (i=1;i<randomInt;i++) {
-                line = bufferedReader.readLine();
-                //loop until 153
-            }   
-            line = bufferedReader.readLine(); -> will read line 154
-                
-            
-                
+        String line = null;    
+        // reading from words.txt   
+        file = new File("Words.txt");
+        try {
+            fileStream=new FileInputStream(file);
+            fileReader = new FileReader(file);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(ServerHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-        */
-                        
-    //saving file words at list
-   /* List<String> words = new ArrayList<String>();
-    while(line != null) {
-        String[] wordsLine = line.split(" ");
-        for(String word : wordsLine) {
-            words.add(word);
-            for (int i = 0; i < 10; i++) {
-                
-            }
-            System.out.println("words");
-        }
+        
+        bufferedReader = new BufferedReader(fileReader);
+        for (int i=0;i<R;i++) {
+            line = bufferedReader.readLine();
+        }   
+        line = bufferedReader.readLine(); 
+        System.out.println("Line :" + R + " "+line);
 
-    }*/
-            
-    // choosing random words from list
-    Random rand = new Random(System.currentTimeMillis());
-   String randomWord = words.get(rand.nextInt(words.size()));
-     return randomWord;
-    
-     
+            return line;
     }
     
-
+    
     //selectedWord is the word is selected from words.txt
     //dashedWord is what we want to send for client again
     public String wordChecking(String guessedWrd,String selectedWrd,String currentWrd)
@@ -165,11 +120,11 @@ public class ServerHandler extends Thread
         //userWin=false;
   
            
-    public String startNewGame()
+    public String startNewGame() throws IOException
     {
       CurrentWord ="";
       selectedWord=ChooseWord();
-      TrialNum=(ChooseWord().length())+3;
+      TrialNum=(selectedWord.length())+3;
       for(int i=0;i<selectedWord.length();i++)
       {
           CurrentWord += "-";
@@ -205,7 +160,7 @@ public class ServerHandler extends Thread
     }
          
          
-    public void playGame()
+    public void playGame() throws IOException 
     {
         //if it is the first time that client calls server
         String firstTime=startNewGame();
