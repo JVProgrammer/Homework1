@@ -19,7 +19,7 @@ public class ServerHandler extends Thread
     private BufferedOutputStream out;
     private String fileName=null;
     private int trialNum;
-    private int gameScore=1;
+    private int gameScore=0;
     private String selectedWord, CurrentWord,inputFrClient,updateToClient=null;
     
     boolean gameStatus=false;
@@ -50,7 +50,16 @@ public class ServerHandler extends Thread
             System.out.println("PLAY GAME START==========================");
             playGame();         
         }
-        //End
+
+        try {
+            in.close();
+            out.close();
+        } catch (IOException ex) {
+            Logger.getLogger(ServerHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+            
+
     }
 
     public String ChooseWord() throws IOException 
@@ -77,7 +86,7 @@ public class ServerHandler extends Thread
         
         bufferedReader = new BufferedReader(fileReader);
         for (int i=0;i<R;i++) {
-            line = bufferedReader.readLine();
+             bufferedReader.readLine();
         }   
         line = bufferedReader.readLine(); 
         System.out.println("Line :" + R + " "+line);
@@ -88,12 +97,13 @@ public class ServerHandler extends Thread
     
     //selectedWord is the word is selected from words.txt
     //dashedWord is what we want to send for client again
+    
     public void wordChecking()
     {
         System.out.println("Input fr client :"+inputFrClient);
         if(inputFrClient.length()>1)     {
             if(selectedWord.equalsIgnoreCase(inputFrClient)) {
-                gameStatus=true;
+                gameStatus=true;  // wins
                 gameScore++;
             } 
             else {
@@ -190,17 +200,33 @@ public class ServerHandler extends Thread
             System.out.println("Guess from client : "+inputFrClient);
             //we want to check the input from client
             //trialNum--;
-            if (inputFrClient=="ekzit") {
-                isStillPlaying=false;
-                isInGame=false;
+            if (inputFrClient=="NEWGAME") {
+                try {
+                    //isStillPlaying=true;
+                    isInGame=false;
+                    in.close();
+                    out.close();
+                    break;
+                } catch (IOException ex) {
+                    Logger.getLogger(ServerHandler.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            else if (inputFrClient=="ENDGAME") {
+                try {
+                    isStillPlaying=false;
+                    isInGame=false;
+                    in.close();
+                    out.close();
+                    break;
+                } catch (IOException ex) {
+                    Logger.getLogger(ServerHandler.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
             else{
                 wordChecking();
                 sendToClient(updateToClient);
-                                
             }
 
-            
         }
         //GAME END HERE
     }
